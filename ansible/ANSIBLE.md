@@ -4,13 +4,17 @@
 
 ## Best practices applied
 Some practices were take from the [official guide](https://docs.ansible.com/ansible/2.8/user_guide/playbooks_best_practices.html#id23).
-* Using dynamic inventory with clouds.
+* Use dynamic inventory with clouds.
 * Configuration file `ansible.cfg` not to repeat useful information.
-* Using roles instead of a huge list of tasks inside a playbook.
+* Use roles instead of a huge list of tasks inside a playbook.
 * Compliance with directory layout conventions (`role/handlers/`, `role/tasks/`, etc.).
-* Whitespace and comments.
-* Using version control. Keeping your playbooks and inventory file in `git`.
 * Always name tasks.
+* Group Tasks with Blocks.
+* Set roles dependency.
+* Apply tags.
+* Create Wipe task with separate tag.
+* Whitespace and comments.
+* Use version control. Keep your playbooks and inventory file in `git`.
 
 ---
 
@@ -146,3 +150,129 @@ PLAY RECAP *********************************************************************
 <u>Note</u>: VM's name is taken from Yandex Cloud => dynamic hosts resolution works fine.
 
 ---
+
+## Application Deployment
+
+### Python App
+**Command:**
+```shell
+ansible-playbook playbooks/dev/app_python/main.yml
+```
+**Output (last 50 lines):**
+```
+...
+
+TASK [docker : Install python3-pip via apt] ************************************
+ok: [terraform-vm]
+
+TASK [docker : Install docker-compose using pip] *******************************
+included: {...}/iu-devops-course/ansible/roles/docker/tasks/install_compose.yml for terraform-vm
+
+TASK [docker : Install docker-compose via pip] *********************************
+ok: [terraform-vm]
+
+TASK [web_app : Check web_app_deployment_way] **********************************
+skipping: [terraform-vm]
+
+TASK [web_app : Get container info] ********************************************
+ok: [terraform-vm]
+
+TASK [web_app : Stop container if it is running] *******************************
+skipping: [terraform-vm]
+
+TASK [web_app : Check Docker-Compose file exists] ******************************
+skipping: [terraform-vm]
+
+TASK [web_app : Stop Docker-Compose services] **********************************
+skipping: [terraform-vm]
+
+TASK [web_app : Remove container] **********************************************
+ok: [terraform-vm]
+
+TASK [web_app : Remove image] **************************************************
+ok: [terraform-vm]
+
+TASK [web_app : Check Docker-Compose file exists] ******************************
+skipping: [terraform-vm]
+
+TASK [web_app : Remove Docker-Compose services] ********************************
+skipping: [terraform-vm]
+
+TASK [web_app : Remove application's directory with it's content] **************
+skipping: [terraform-vm]
+
+TASK [web_app : Deploy Application using Docker] *******************************
+changed: [terraform-vm]
+
+TASK [web_app : Create application directory] **********************************
+skipping: [terraform-vm]
+
+TASK [web_app : Create Docker-Compose file from template] **********************
+skipping: [terraform-vm]
+
+PLAY RECAP *********************************************************************
+terraform-vm               : ok=18   changed=1    unreachable=0    failed=0    skipped=9    rescued=0    ignored=0   
+```
+<u>Note</u>: absolute paths to role's tasks are also masked.
+
+### Kotlin App
+**Command:**
+```shell
+ansible-playbook playbooks/dev/app_kotlin/main.yml
+```
+**Output (last 50 lines):**
+```
+...
+
+TASK [docker : Install python3-pip via apt] ************************************
+ok: [terraform-vm]
+
+TASK [docker : Install docker-compose using pip] *******************************
+included: {...}/iu-devops-course/ansible/roles/docker/tasks/install_compose.yml for terraform-vm
+
+TASK [docker : Install docker-compose via pip] *********************************
+ok: [terraform-vm]
+
+TASK [web_app : Check web_app_deployment_way] **********************************
+skipping: [terraform-vm]
+
+TASK [web_app : Get container info] ********************************************
+ok: [terraform-vm]
+
+TASK [web_app : Stop container if it is running] *******************************
+skipping: [terraform-vm]
+
+TASK [web_app : Check Docker-Compose file exists] ******************************
+skipping: [terraform-vm]
+
+TASK [web_app : Stop Docker-Compose services] **********************************
+skipping: [terraform-vm]
+
+TASK [web_app : Remove container] **********************************************
+ok: [terraform-vm]
+
+TASK [web_app : Remove image] **************************************************
+ok: [terraform-vm]
+
+TASK [web_app : Check Docker-Compose file exists] ******************************
+skipping: [terraform-vm]
+
+TASK [web_app : Remove Docker-Compose services] ********************************
+skipping: [terraform-vm]
+
+TASK [web_app : Remove application's directory with it's content] **************
+skipping: [terraform-vm]
+
+TASK [web_app : Deploy Application using Docker] *******************************
+changed: [terraform-vm]
+
+TASK [web_app : Create application directory] **********************************
+skipping: [terraform-vm]
+
+TASK [web_app : Create Docker-Compose file from template] **********************
+skipping: [terraform-vm]
+
+PLAY RECAP *********************************************************************
+terraform-vm               : ok=18   changed=1    unreachable=0    failed=0    skipped=9    rescued=0    ignored=0   
+```
+<u>Note</u>: absolute paths to role's tasks are also masked.

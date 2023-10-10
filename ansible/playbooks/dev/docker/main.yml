@@ -10,4 +10,4 @@
   hosts: all
   become: true
   roles:
-    - docker
+    - name: docker
