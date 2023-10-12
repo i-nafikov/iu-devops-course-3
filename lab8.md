@@ -22,11 +22,11 @@ In this lab, you will become acquainted with Prometheus, set it up, and configur
    - Capture screenshots that confirm the successful setup and place them in a file named `METRICS.md` within the monitoring folder.
 
 5. Pull Request to Forked Repository:
-   - Create a Pull Request (PR) to the lab4 branch of the forked repository.
+   - Create a Pull Request (PR) to the main branch of the forked repository.
    - Request your teammates to review this PR, and actively review PRs from your teammates.
 
 6. Pull Request in Your Repository:
-   - Construct a PR in your repository, linking the lab4 branch to the lab3 branch.
+   - Construct a PR in your repository, linking the lab8 branch to the main branch.
    - This step is essential for grading and monitoring your work.
 
 ## Task 2: Dashboard and Configuration Enhancements
