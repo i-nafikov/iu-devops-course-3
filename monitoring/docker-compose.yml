@@ -1,0 +1,82 @@
+version: "3.8"
+
+networks:
+  loki:
+
+services:
+  app_python:
+    image: iskanred/app_python:1.0.0
+    container_name: app_python
+    ports:
+      - "80:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080"]
+      timeout: 10s
+      start_period: 10s
+    logging: &logging
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        # --log-opt tag="{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+        tag: '{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}'
+
+  app_kotlin:
+    image: iskanred/app_kotlin:1.0.0
+    container_name: app_kotlin
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080"]
+      timeout: 10s
+      start_period: 10s
+    logging: *logging
+
+  loki:
+    image: grafana/loki:2.9.1
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --tries=1 --spider http://localhost:3100/ready || exit 1"]
+      timeout: 10s
+      start_period: 1m
+    logging: *logging
+    networks:
+      - loki
+
+  promtail:
+    image: grafana/promtail:2.9.1
+    container_name: promtail
+    volumes:
+      - "./config/promtail.yaml:/etc/promtail/promtail.yaml:ro"
+      - "/var/lib/docker/containers:/var/lib/docker/containers:ro"
+    command: -config.file=/etc/promtail/promtail.yaml
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'cat < /dev/null > /dev/tcp/localhost/9080' || exit 1"]
+      timeout: 30s
+      start_period: 10s
+    logging: *logging
+    networks:
+      - loki
+
+  grafana:
+    image: grafana/grafana:10.1.4
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    volumes:
+      - "./config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000"]
+      timeout: 10s
+      start_period: 15s
+    logging: *logging
+    networks:
+      - loki
